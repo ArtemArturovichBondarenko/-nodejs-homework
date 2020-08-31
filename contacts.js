@@ -4,16 +4,15 @@ const { v4: uuidv4 } = require("uuid");
 
 const contactsPath = path.join(__dirname, "db", "contacts.json");
 
-// TODO: задокументировать каждую функцию
+
 async function listContacts() {
   const data = await fs.promises.readFile(contactsPath, "utf-8");
   return JSON.parse(data);
 }
 
 async function getContactById(contactId) {
-  const data = await fs.promises.readFile(contactsPath, "utf-8");
-  const parseData = JSON.parse(data);
-  const findContactById = parseData.find((item) => item.id === contactId);
+  const data = await listContacts();
+  const findContactById = data.find((item) => item.id === contactId);
   return findContactById;
 }
 
@@ -32,9 +31,8 @@ async function addContact(name, email, phone) {
 }
 
 async function removeContact(contactId) {
-  const data = await fs.promises.readFile(contactsPath, "utf-8");
-  const parseData = JSON.parse(data);
-  const RemoveContactById = parseData.filter((item) => item.id !== contactId);
+  const data = await listContacts();
+  const RemoveContactById = data.filter((item) => item.id !== contactId);
   return RemoveContactById;
 }
 
@@ -45,6 +43,3 @@ module.exports = {
   removeContact,
 };
 
-// module.exports.listContacts = listContacts;
-// module.exports.getContactById = getContactById;
-// module.exports.addContact = addContact;
