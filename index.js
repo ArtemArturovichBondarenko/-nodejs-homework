@@ -1,11 +1,14 @@
+
 const morgan = require("morgan");
 const cors = require("cors");
 const connection = require("./database/Connection");
+
 const express = require("express");
 const contactsRouter = require("./contactsRouter");
 
 const app = express();
 const PORT = 3000;
+
 
 async function main() {
   await connection.connect();
@@ -29,4 +32,4 @@ async function main() {
   });
 }
 
-main().catch(console.error);
+
