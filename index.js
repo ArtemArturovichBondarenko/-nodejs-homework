@@ -1,4 +1,3 @@
-
 const morgan = require("morgan");
 const cors = require("cors");
 const connection = require("./database/Connection");
@@ -8,7 +7,6 @@ const contactsRouter = require("./contactsRouter");
 
 const app = express();
 const PORT = 3000;
-
 
 async function main() {
   await connection.connect();
@@ -24,12 +22,13 @@ async function main() {
     if (err) {
       return console.error(err);
     }
-    console.log("server started");
+    console.info("server started PORT", PORT);
   });
 
-  process.on("SIGILL", () => {
+  process.on("SIGINT", () => {
+
     connection.close();
   });
 }
 
-
+main().catch(console.error);
