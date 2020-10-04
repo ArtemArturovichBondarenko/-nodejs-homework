@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 const validate = require("./helpers/validate");
 const joi = require("joi");
-const passwordHash = require("password-hash");
+// const passwordHash = require("password-hash");
+const bcrypt = require("bcrypt");
 const authCheck = require("./middlewares/auth-check");
 
 const ContactModel = require("./database/models/ContactModel");
@@ -54,7 +55,7 @@ router.post("/auth/login", async (req, res) => {
 
     if (!contact) throw new Error("Email or password is wrong");
 
-    const isValid = passwordHash.verify(password, contact.password);
+    const isValid = bcrypt.compare(password, contact.password);
 
     if (!isValid) throw new Error("Email or password is wrong");
 

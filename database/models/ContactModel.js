@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
-const passwordHash = require("password-hash");
+// const passwordHash = require("password-hash");
+const bcrypt = require("bcrypt");
 const joi = require("joi");
 const jsonWebToken = require("jsonwebtoken");
 const config = require("../../config");
@@ -36,11 +37,13 @@ const ContactSchema = new mongoose.Schema({
 });
 
 ContactSchema.static("hashPassword", (password) => {
-  return passwordHash.generate(password);
+  const costFactor = 6;
+  // return passwordHash.generate(password);
+  return bcrypt.hash(password, costFactor);
 });
 
 ContactSchema.method("isPasswordValid", function (password) {
-  return password.verify(password, this.password);
+  return password.compare(password, this.password);
 });
 
 ContactSchema.method("generateAndSaveToken", async function () {
