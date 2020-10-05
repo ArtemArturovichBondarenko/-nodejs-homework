@@ -19,10 +19,9 @@ const main = async () => {
       await Promise.all(chunk.map((contact) => contact.save()));
     }
 
-    setTimeout(main, 60e3);
+    setInterval(main, 60e3);
   } catch (e) {
     console.error("CRON TOKEN CLEANER ERROR", e);
-    setTimeout(main, 60e3);
   }
 };
 
