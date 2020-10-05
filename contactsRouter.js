@@ -30,10 +30,9 @@ router.get("/:contactId", async (req, res) => {
     console.error(e);
     res.status(400).send(e);
   }
-
+});
 
 //===========================================
-
 
 router.post("/", async (req, res) => {
   try {
@@ -44,11 +43,9 @@ router.post("/", async (req, res) => {
     console.error(e);
     res.status(400).send(e);
   }
-
 });
 
 //=====================================
-
 
 router.delete("/:contactId", async (req, res) => {
   try {
@@ -65,11 +62,9 @@ router.delete("/:contactId", async (req, res) => {
     console.error(e);
     res.status(400).send(e);
   }
-
 });
 
 //==============================
-
 
 router.patch("/:contactId", async (req, res) => {
   try {
@@ -91,7 +86,6 @@ router.patch("/:contactId", async (req, res) => {
     console.error(e);
     res.status(400).send(e);
   }
-
 });
 
 module.exports = router;
