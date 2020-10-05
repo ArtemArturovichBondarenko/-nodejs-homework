@@ -8,7 +8,7 @@ class Connection {
   }
 
   getCollection(name) {
-    return this.database.collection(name)
+    return this.database.collection(name);
   }
 
   async connect() {
@@ -24,7 +24,7 @@ class Connection {
     await mongoose.connect(
       `${config.databaseConnectionUrl}/${config.databaseName}`,
       { useNewUrlParser: true, useUnifiedTopology: true }
-    );
+      );
     return connectionStatePromise;
   }
 

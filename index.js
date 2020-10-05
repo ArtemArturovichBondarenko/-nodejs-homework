@@ -1,18 +1,18 @@
-
 const morgan = require("morgan");
 const cors = require("cors");
 const connection = require("./database/Connection");
 
 const express = require("express");
 const contactsRouter = require("./contactsRouter");
+const tokenCleaner = require("./cron/token-cleaner");
 
 const app = express();
 const PORT = 3000;
 
-
 async function main() {
   await connection.connect();
-
+  tokenCleaner();
+  
   app.use(morgan("tiny"));
   app.use(express.urlencoded());
   app.use(express.json());
@@ -24,12 +24,12 @@ async function main() {
     if (err) {
       return console.error(err);
     }
-    console.log("server started");
+    console.info("server started PORT", PORT);
   });
 
-  process.on("SIGILL", () => {
+  process.on("SIGINT", () => {
     connection.close();
   });
 }
 
-
+main().catch(console.error);

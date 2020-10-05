@@ -1,5 +1,10 @@
 const express = require("express");
 const router = express.Router();
+const validate = require("./helpers/validate");
+const joi = require("joi");
+// const passwordHash = require("password-hash");
+const bcrypt = require("bcrypt");
+const authCheck = require("./middlewares/auth-check");
 
 const ContactModel = require("./database/models/ContactModel");
 
@@ -30,10 +35,124 @@ router.get("/:contactId", async (req, res) => {
     console.error(e);
     res.status(400).send(e);
   }
-
+});
 
 //===========================================
 
+router.post("/auth/login", async (req, res) => {
+  try {
+    validate(
+      joi.object({
+        email: joi.string().required(),
+        password: joi.string().required(),
+      }),
+      req.body
+    );
+
+    const { email, password } = req.body;
+
+    const contact = await ContactModel.findOne({ email });
+
+    if (!contact) throw new Error("Email or password is wrong");
+
+    const isValid = bcrypt.compare(password, contact.password);
+
+    if (!isValid) throw new Error("Email or password is wrong");
+
+    const token = await contact.generateAndSaveToken();
+    res.send({
+      id: contact._id,
+      name: contact.name,
+      email: contact.email,
+      subscription: contact.subscription,
+      activeToken: token,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(401).send(e);
+  }
+});
+
+//===========================================
+
+router.post("/auth/register", async (req, res) => {
+  try {
+    validate(
+      joi.object({
+        name: joi.string().required(),
+        email: joi.string().required(),
+        phone: joi.number().required(),
+        password: joi.string().required(),
+      }),
+      req.body
+    );
+
+    const { name, email, phone, password } = req.body;
+
+    const [contact] = await ContactModel.find({
+      $or: [{ email }, { phone }],
+    });
+
+    if (contact) {
+      res.status(400).send("Email or phone in use");
+      throw new Error("Email or phone in use");
+    }
+
+    const createContact = await ContactModel.create({
+      name,
+      email,
+      phone,
+      password,
+    });
+
+    res.status(201).send({ createContact });
+  } catch (e) {
+    console.error(e);
+    res.status(400).send(e);
+  }
+});
+
+//==========================================
+
+router.get("/:contactId/users/current", authCheck, async (req, res) => {
+  try {
+    const { contact } = req;
+    const { contactId } = req.params;
+
+    if (String(contact._id) !== contactId) {
+      throw new Error("Not authorized");
+    }
+
+    res.send({
+      contact: await ContactModel.findById(contactId),
+    });
+  } catch (e) {
+    console.error(e);
+    res.send(e);
+  }
+});
+
+//===========================================
+
+router.post("/:contactId/auth/logout", authCheck, async (req, res) => {
+  try {
+    const { contact } = req;
+    const { contactId } = req.params;
+
+    if (String(contact._id) !== contactId) {
+      throw new Error("Not authorized");
+    } else {
+      contact = await ContactModel.findByIdAndUpdate(contactId, { tokens: [] });
+    }
+
+    res.status(204).send({ message: "No Content" });
+  } catch (e) {
+    console.error(e);
+    res.send(e);
+  }
+});
+
+//========================================
 
 router.post("/", async (req, res) => {
   try {
@@ -44,11 +163,9 @@ router.post("/", async (req, res) => {
     console.error(e);
     res.status(400).send(e);
   }
-
 });
 
 //=====================================
-
 
 router.delete("/:contactId", async (req, res) => {
   try {
@@ -65,11 +182,9 @@ router.delete("/:contactId", async (req, res) => {
     console.error(e);
     res.status(400).send(e);
   }
-
 });
 
 //==============================
-
 
 router.patch("/:contactId", async (req, res) => {
   try {
@@ -91,7 +206,6 @@ router.patch("/:contactId", async (req, res) => {
     console.error(e);
     res.status(400).send(e);
   }
-
 });
 
 module.exports = router;
