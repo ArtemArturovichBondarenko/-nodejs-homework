@@ -4,6 +4,7 @@ const connection = require("./database/Connection");
 
 const express = require("express");
 const contactsRouter = require("./routers/contactsRouter");
+const fileRouter = require("./routers/filesRouters");
 const tokenCleaner = require("./cron/token-cleaner");
 
 const app = express();
@@ -11,7 +12,7 @@ const PORT = 5500;
 
 async function main() {
   await connection.connect();
-  tokenCleaner();
+  await tokenCleaner();
 
   app.use(morgan("tiny"));
   app.use(express.urlencoded());
@@ -22,6 +23,7 @@ async function main() {
   //===========
 
   app.use("/contacts", contactsRouter);
+  app.use("/files", fileRouter);
 
   app.listen(PORT, (err) => {
     if (err) {

@@ -1,13 +1,19 @@
 const express = require("express");
 const router = express.Router();
-const validate = require("../helpers/validate");
+const {
+  validate,
+  generateFilename,
+  errorHandler,
+  moveFile,
+} = require("../helpers");
 const joi = require("joi");
-// const fs = require("fs")
-// const path = require("path");
+const fs = require("fs").promises;
+const path = require("path");
 const bcrypt = require("bcrypt");
 const authCheck = require("../middlewares/auth-check");
-const { multer } = require("../services");
+const { multer, imageMin } = require("../services");
 
+const FileModel = require("../database/models/FileModel");
 const ContactModel = require("../database/models/ContactModel");
 
 router.get("/", async (req, res) => {
@@ -46,13 +52,26 @@ router.post(
   multer.single("avatar"),
   async (req, res) => {
     try {
-      let filedata = req.file;
- 
-    console.log(filedata);
-    if(!filedata)
-        res.send("Ошибка при загрузке файла");
-    else
-        res.send("Файл загружен");
+      let filename = generateFilename(req.file.mimetype);
+      let minFilename = `min-${filename}`;
+      let filepath = path.join(__dirname, "../public/images");
+
+      let minImage = await imageMin(req.file.path);
+
+      await Promise.all([
+        moveFile(req.file.path, path.join(filepath, filename)),
+        moveFile(minImage.destinationPath, path.join(filepath, minFilename)),
+      ]);
+
+      const fileRecord = await FileModel.create({
+        path: filepath,
+        name: filename,
+      });
+      await FileModel.create({
+        path: filepath,
+        name: minFilename,
+        origin: fileRecord._id,
+      });
     } catch (e) {
       errorHandler(req, res, e);
     }
@@ -158,8 +177,8 @@ router.get("/:contactId/users/current", authCheck, async (req, res) => {
 
 router.post("/:contactId/auth/logout", authCheck, async (req, res) => {
   try {
-    const { contact } = req;
-    const { contactId } = req.params;
+    let { contact } = req;
+    let { contactId } = req.params;
 
     if (String(contact._id) !== contactId) {
       throw new Error("Not authorized");
@@ -173,8 +192,6 @@ router.post("/:contactId/auth/logout", authCheck, async (req, res) => {
     res.send(e);
   }
 });
-
-//========================================
 
 //========================================
 
