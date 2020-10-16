@@ -9,6 +9,7 @@ const {
 const joi = require("joi");
 const fs = require("fs").promises;
 const path = require("path");
+const config = require("../config");
 const bcrypt = require("bcrypt");
 const authCheck = require("../middlewares/auth-check");
 const { multer, imageMin } = require("../services");
@@ -53,10 +54,10 @@ router.post(
   async (req, res) => {
     try {
       let filename = generateFilename(req.file.mimetype);
-      let minFilename = `min-${filename}`;
-      let filepath = path.join(__dirname, "../public/images");
+      const minFilename = `min-${filename}`;
+      const filepath = config.path.files;
 
-      let minImage = await imageMin(req.file.path);
+      const minImage = await imageMin(req.file.path);
 
       await Promise.all([
         moveFile(req.file.path, path.join(filepath, filename)),

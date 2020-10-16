@@ -1,7 +1,7 @@
 const multer = require("multer");
-const path = require("path");
+const config = require("../config");
 const FileModel = require("../database/models/FileModel");
 
-const filePath = path.join(__dirname, "../tmp");
+const filePath = config.path.tmp;
 
 module.exports = multer({ dest: filePath });

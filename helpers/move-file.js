@@ -1,6 +1,6 @@
 const fs = require("fs").promises;
 
-module.exports = async (source, desc) => {
+const moveFile = async (source, desc) => {
   try {
     await fs.rename(source, desc);
   } catch (e) {
@@ -10,3 +10,5 @@ module.exports = async (source, desc) => {
     await fs.unlink(source);
   }
 };
+
+module.exports = moveFile;
