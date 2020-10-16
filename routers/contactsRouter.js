@@ -1,12 +1,21 @@
 const express = require("express");
 const router = express.Router();
-const validate = require("./helpers/validate");
+const {
+  validate,
+  generateFilename,
+  errorHandler,
+  moveFile,
+} = require("../helpers");
 const joi = require("joi");
-// const passwordHash = require("password-hash");
+const fs = require("fs").promises;
+const path = require("path");
+const config = require("../config");
 const bcrypt = require("bcrypt");
-const authCheck = require("./middlewares/auth-check");
+const authCheck = require("../middlewares/auth-check");
+const { multer, imageMin } = require("../services");
 
-const ContactModel = require("./database/models/ContactModel");
+const FileModel = require("../database/models/FileModel");
+const ContactModel = require("../database/models/ContactModel");
 
 router.get("/", async (req, res) => {
   try {
@@ -36,6 +45,39 @@ router.get("/:contactId", async (req, res) => {
     res.status(400).send(e);
   }
 });
+
+//===========================================
+
+router.post(
+  "/register/with-avatar",
+  multer.single("avatar"),
+  async (req, res) => {
+    try {
+      let filename = generateFilename(req.file.mimetype);
+      const minFilename = `min-${filename}`;
+      const filepath = config.path.files;
+
+      const minImage = await imageMin(req.file.path);
+
+      await Promise.all([
+        moveFile(req.file.path, path.join(filepath, filename)),
+        moveFile(minImage.destinationPath, path.join(filepath, minFilename)),
+      ]);
+
+      const fileRecord = await FileModel.create({
+        path: filepath,
+        name: filename,
+      });
+      await FileModel.create({
+        path: filepath,
+        name: minFilename,
+        origin: fileRecord._id,
+      });
+    } catch (e) {
+      errorHandler(req, res, e);
+    }
+  }
+);
 
 //===========================================
 
@@ -136,8 +178,8 @@ router.get("/:contactId/users/current", authCheck, async (req, res) => {
 
 router.post("/:contactId/auth/logout", authCheck, async (req, res) => {
   try {
-    const { contact } = req;
-    const { contactId } = req.params;
+    let { contact } = req;
+    let { contactId } = req.params;
 
     if (String(contact._id) !== contactId) {
       throw new Error("Not authorized");

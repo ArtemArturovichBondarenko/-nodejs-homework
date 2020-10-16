@@ -20,12 +20,12 @@ const ContactSchema = new mongoose.Schema({
   },
   password: { type: String, required: true },
   phone: { type: Number, unique: true, required: true },
+  avatarURL: { type: String },
   subscription: {
     type: String,
     enum: ["free", "pro", "premium"],
     default: "free",
   },
-  password: { type: String },
   tokens: [
     {
       token: { type: String, require: true },
