@@ -1,46 +1,44 @@
 {
-  "name": "goit-node",
+  "name": "-nodejs-homework",
   "version": "1.0.0",
   "description": "",
-  "main": "api/app.js",
+  "main": "index.js",
   "dependencies": {
-    "@hapi/joi": "^17.1.1",
-    "@sendgrid/mail": "^7.2.2",
-    "avatar-builder": "^1.0.1",
     "bcrypt": "^5.0.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "imagemin": "^7.0.1",
     "imagemin-jpegtran": "^7.0.0",
-    "imagemin-pngquant": "^9.0.0",
+    "imagemin-pngquant": "^9.0.1",
+    "joi": "^17.2.1",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.9.21",
-    "mongoose-paginate-v2": "^1.3.9",
+    "lodash": "^4.17.20",
+    "mime-types": "^2.1.27",
+    "mongodb": "^3.6.2",
+    "mongoose": "^5.10.5",
     "morgan": "^1.10.0",
     "multer": "^1.4.2",
-    "supertest": "^4.0.2",
-    "uuid": "^8.2.0"
+    "password-hash": "^1.2.2",
+    "uuid": "^8.3.0",
+    "yargs": "^15.4.1"
   },
   "devDependencies": {
-    "mocha": "^8.0.1",
-    "nodemon": "^2.0.4",
-    "should": "^13.2.3",
-    "sinon": "^9.0.2"
+    "nodemon": "^2.0.4"
   },
   "scripts": {
-    "start": "node api/app",
-    "dev": "nodemon api/app",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon ./index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/anton-ua/goit-node.git"
+    "url": "git+https://github.com/ArtemArturovichBondarenko/-nodejs-homework.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/anton-ua/goit-node/issues"
+    "url": "https://github.com/ArtemArturovichBondarenko/-nodejs-homework/issues"
   },
-  "homepage": "https://github.com/anton-ua/goit-node#readme"
+  "homepage": "https://github.com/ArtemArturovichBondarenko/-nodejs-homework#readme"
 }

@@ -1,10 +1,13 @@
 require("dotenv").config();
+const path = require("path");
 
 module.exports = {
-  port: process.env.PORT,
-  databaseName: process.env.MONGODB_URL,
-  bcryptSalt: process.env.BCRYPT_SALT_ROUNDS,
-  sendgridApiKey: process.env.SENDGRID_API_KEY,
-  email: process.env.EMAIL,
-  jwtSecret: process.env.JWT_SECRET,
+  databaseConnectionUrl: process.env.DATABASE_URL,
+  databaseName: process.env.DATABASE_NAME,
+  jwtPrivateKey: process.env.TOKEN_PRIVATE_KEY,
+
+  path: {
+    files: path.join(__dirname, "./public/images"),
+    tmp: path.join(__dirname, "./tmp"),
+  },
 };
