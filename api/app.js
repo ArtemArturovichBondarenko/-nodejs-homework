@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 
 const cors = require("cors");
 const morgan = require("morgan");
-require("dotenv").config();
+const config = require("../config");
 
 const contactsRouter = require("./contacts/contacts.router");
 const userRouter = require("./user/user.router");
@@ -24,7 +24,7 @@ mongoose.set("useFindAndModify", false);
 
 const dbConnect = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URL, {
+    await mongoose.connect(config.databaseName, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
@@ -38,8 +38,8 @@ const dbConnect = async () => {
 const startServer = async () => {
   await dbConnect();
 
-  app.listen(process.env.PORT, () =>
-    console.log(`App listening at http://localhost:${process.env.PORT}`)
+  app.listen(config.port, () =>
+    console.log(`App listening at http://localhost:${config.port}`)
   );
 };
 

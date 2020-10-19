@@ -2,6 +2,7 @@ const express = require("express");
 const path = require("path");
 const userController = require("./user.controller");
 const multer = require("multer");
+const config = require("../../config");
 
 const storage = multer.diskStorage({
   destination: "api/tmp",

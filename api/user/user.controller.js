@@ -10,6 +10,7 @@ const imageminJpegtran = require("imagemin-jpegtran");
 const imageminPngquant = require("imagemin-pngquant");
 const { v4: uuidv4 } = require("uuid");
 const sgMail = require("@sendgrid/mail");
+const config = require("../../config");
 
 class userController {
   static userRegister = async (req, res, next) => {
@@ -24,12 +25,12 @@ class userController {
 
       const passwordHash = await bcrypt.hash(
         req.body.password,
-        +process.env.BCRYPT_SALT_ROUNDS
+        +config.bcryptSalt
       );
 
       const verificationToken = uuidv4();
 
-      this.sendVerificationEmail(req.body.email, verificationToken);
+      await this.sendVerificationEmail(req.body.email, verificationToken);
 
       const userToAdd = {
         email: req.body.email,
@@ -61,18 +62,18 @@ class userController {
 
     await fsPromise.writeFile(avatarPath + "/" + avatarName, avatar);
 
-    return `http://localhost:${process.env.PORT}/images/${avatarName}`;
+    return `http://localhost:${config.port}/images/${avatarName}`;
   };
 
-  static sendVerificationEmail = (email, verificationToken) => {
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  static sendVerificationEmail = async (email, verificationToken) => {
+    await sgMail.setApiKey(config.sendgridApiKey);
 
     const msg = {
       to: email,
-      from: process.env.EMAIL,
+      from: config.email,
       subject: "Verification",
-      text: `http://localhost:${process.env.PORT}/verify/${verificationToken}`,
-      html: `<p>Please, <a href=http://localhost:${process.env.PORT}/auth/verify/${verificationToken}>click</a> to verify your email</p>`,
+      text: `http://localhost:${config.port}/verify/${verificationToken}`,
+      html: `<p>Please, <a href=http://localhost:${config.port}/auth/verify/${verificationToken}>click</a> to verify your email</p>`,
     };
 
     sgMail.send(msg);
@@ -129,7 +130,7 @@ class userController {
         return res.status(401).send({ message: "Email or password is wrong" });
       }
 
-      const token = await jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+      const token = await jwt.sign({ id: user._id }, config.jwtSecret);
 
       await userModel.findByIdAndUpdate(user._id, {
         token,
@@ -172,7 +173,7 @@ class userController {
       const authorizationHeader = req.get("Authorization") || "";
       const token = authorizationHeader.replace("Bearer ", "");
 
-      const verifyToken = await jwt.verify(token, process.env.JWT_SECRET).id;
+      const verifyToken = await jwt.verify(token, config.jwtSecret).id;
 
       const user = await userModel.findById(verifyToken);
 
@@ -253,7 +254,7 @@ class userController {
     try {
       await this.minifyImage(req.file.path);
 
-      const path = `http://localhost:${process.env.PORT}/images/${req.file.filename}`;
+      const path = `http://localhost:${config.port}/images/${req.file.filename}`;
 
       await userModel.findByIdAndUpdate(req.id, { $set: { avatarURL: path } });
 
